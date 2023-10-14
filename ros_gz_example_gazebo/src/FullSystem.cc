@@ -38,8 +38,8 @@
 #include <gz/sim/components/World.hh>
 #include <gz/sim/EntityComponentManager.hh>
 #include <gz/sim/Util.hh>
-
 // Don't forget to include the plugin's header.
+#include <ros_gz_example_gazebo/msgs/obstaclerange.pb.h>
 #include "ros_gz_example_gazebo/FullSystem.hh"
 
 // This is required to register the plugin. Make sure the interfaces match
@@ -135,6 +135,8 @@ void FullSystem::PostUpdate(const gz::sim::UpdateInfo &_info,
   {
     for (auto &[entity, sensor] : this->entitySensorMap)
     {
+      ros_gz_example_gazebo::msgs::FoobarStamped msg;
+
       gzerr << sensor->AngleMin() << std::endl;;
     }
   }

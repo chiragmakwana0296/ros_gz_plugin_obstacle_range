@@ -58,7 +58,7 @@ set(MSGS_PROTOS
 
 gz_msgs_generate_messages(
   # The cmake target to be generated for libraries/executables to link
-  TARGET ros_gz_example_gazebo_msgs
+  TARGET msgs
   # The protobuf package to generate (Typically based on the path)
   PROTO_PACKAGE "ros_gz_example_gazebo.msgs"
   # The path to the base directory of the proto files
@@ -68,13 +68,13 @@ gz_msgs_generate_messages(
   MSGS_PROTOS ${MSGS_PROTOS}
   DEPENDENCIES gz-msgs${GZ_MSGS_VER}::gz-msgs${GZ_MSGS_VER}
 )
-add_library(ros_gz_example_gazebo_msgs
+add_library(msgs
   SHARED
   ${CMAKE_CURRENT_BINARY_DIR}/obstaclerange.pb.cc
 )
-target_include_directories(ros_gz_example_gazebo_msgs PRIVATE include)
+target_include_directories(msgs PRIVATE include)
 
-target_link_libraries(ros_gz_example_gazebo_msgs gz-msgs${GZ_MSGS_VER}::gz-msgs${GZ_MSGS_VER})
+target_link_libraries(msgs gz-msgs${GZ_MSGS_VER}::gz-msgs${GZ_MSGS_VER})
 
 
 add_library(BasicSystem
@@ -116,7 +116,7 @@ target_link_libraries(FullSystem PRIVATE
 # gz-plugin${GZ_PLUGIN_VER}::gz-plugin${GZ_PLUGIN_VER}
   gz-sensors${GZ_SENSORS_VER}::gz-sensors${GZ_SENSORS_VER}
 # gz-rendering${GZ_RENDERING_VER}::gz-rendering${GZ_RENDERING_VER}
-  ros_gz_example_gazebo_msgs
+  ros_gz_example_gazebo-msgs
 
   )
 
@@ -161,7 +161,7 @@ install(
   TARGETS 
   BasicSystem 
   FullSystem 
-  ros_gz_example_gazebo_msgs
+  ros_gz_example_gazebo-msgs
   # ObstacleRange
   DESTINATION lib/${PROJECT_NAME}
 )
