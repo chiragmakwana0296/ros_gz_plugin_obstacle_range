@@ -48,7 +48,9 @@ def generate_launch_description():
             pkg_project_gazebo,
             'worlds',
             'diff_drive.sdf'
-        ])}.items(),
+        ]), 
+        # 'debugger': 'true'
+          }.items(),
     )
 
     # Takes the description and joint angles as inputs and publishes the 3D poses of the robot links

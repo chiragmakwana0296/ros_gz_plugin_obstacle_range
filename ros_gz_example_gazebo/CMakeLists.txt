@@ -10,21 +10,78 @@ project(ros_gz_example_gazebo)
 find_package(ament_cmake REQUIRED)
 
 find_package(gz-cmake3 REQUIRED)
+#============================================================================
+# Configure the project
+#============================================================================
+# set(CMAKE_CXX_STANDARD 17)
+# set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# gz_configure_project(VERSION_SUFFIX)
+# 
+
 find_package(gz-plugin2 REQUIRED COMPONENTS register)
 set(GZ_PLUGIN_VER ${gz-plugin2_VERSION_MAJOR})
 find_package(gz-common5 REQUIRED COMPONENTS profiler)
 set(GZ_COMMON_VER ${gz-common5_VERSION_MAJOR})
 find_package(gz-sim7 REQUIRED)
 set(GZ_SIM_VER ${gz-sim7_VERSION_MAJOR})
+find_package(gz-sensors7 REQUIRED COMPONENTS)
+set(GZ_SENSORS_VER ${gz-sensors7_VERSION_MAJOR})
 
+find_package(gz-msgs10 REQUIRED COMPONENTS)
+set(GZ_MSGS_VER ${gz-msgs10_VERSION_MAJOR})
 
+find_package(gz-rendering7 REQUIRED COMPONENTS)
+set(GZ_RENDERING_VER ${gz-rendering7_VERSION_MAJOR})
+find_package(gz-transport12 REQUIRED COMPONENTS)
+set(GZ_TRANSPORT_VER ${gz-transport12_VERSION_MAJOR})
 # Following 'add_library' directive defines a library target named 'BasicSystem'.
 # The 'SHARED' keyword indicates that a shared library should be compiled, and
 # is followed by the list of source files for the target.
+
+# find_package(Boost 1.58 REQUIRED COMPONENTS system thread filesystem)
+# set(Protobuf_IMPORT_DIRS ${gz-msgs9_INCLUDE_DIRS})
+# find_package(Protobuf REQUIRED)
+# PROTOBUF_GENERATE_CPP(SEN_PROTO_SRCS SEN_PROTO_HDRS
+#     proto/ros_gz_example_gazebo/msgs/obstaclerange.proto
+#   )
+# set_source_files_properties(${SEN_PROTO_SRC} ${SEN_PROTO_HDRS}
+#         PROPERTIES GENERATED TRUE)
+# add_library(ros_gz_example_gazebo_msgs SHARED ${SEN_PROTO_SRCS})
+# target_link_libraries(ros_gz_example_gazebo_msgs gz-msgs${IGN_MSG_VER})
+# include_directories(${CMAKE_BINARY_DIR})
+
+
+set(MSGS_PROTOS
+   ${CMAKE_CURRENT_SOURCE_DIR}/proto/ros_gz_example_gazebo/msgs/obstaclerange.proto
+)
+
+gz_msgs_generate_messages(
+  # The cmake target to be generated for libraries/executables to link
+  TARGET ros_gz_example_gazebo_msgs
+  # The protobuf package to generate (Typically based on the path)
+  PROTO_PACKAGE "ros_gz_example_gazebo.msgs"
+  # The path to the base directory of the proto files
+  # All import paths should be relative to this (eg gz/custom_msgs/vector3d.proto)
+  MSGS_PATH ${CMAKE_CURRENT_SOURCE_DIR}/proto
+  # List of proto files to generate
+  MSGS_PROTOS ${MSGS_PROTOS}
+  DEPENDENCIES gz-msgs${GZ_MSGS_VER}::gz-msgs${GZ_MSGS_VER}
+)
+add_library(ros_gz_example_gazebo_msgs
+  SHARED
+  ${CMAKE_CURRENT_BINARY_DIR}/obstaclerange.pb.cc
+)
+target_include_directories(ros_gz_example_gazebo_msgs PRIVATE include)
+
+target_link_libraries(ros_gz_example_gazebo_msgs gz-msgs${GZ_MSGS_VER}::gz-msgs${GZ_MSGS_VER})
+
+
 add_library(BasicSystem
   SHARED
   src/BasicSystem.cc
 )
+
 
 # Following 'target_include_directories' directive specifies 'include' as the
 # include directory to use when compiling the 'BasicSystem' target.
@@ -55,15 +112,57 @@ target_include_directories(
 )
 
 target_link_libraries(FullSystem PRIVATE
-  gz-sim${GZ_SIM_VER}::gz-sim${GZ_SIM_VER})
+  gz-sim${GZ_SIM_VER}::gz-sim${GZ_SIM_VER}
+# gz-plugin${GZ_PLUGIN_VER}::gz-plugin${GZ_PLUGIN_VER}
+  gz-sensors${GZ_SENSORS_VER}::gz-sensors${GZ_SENSORS_VER}
+# gz-rendering${GZ_RENDERING_VER}::gz-rendering${GZ_RENDERING_VER}
+  ros_gz_example_gazebo_msgs
 
+  )
+
+
+# # Following directives similarly specify another target: 'ObstacleRange'.
+# add_library(ObstacleRange
+#   SHARED
+#   src/ObstacleRange.cc
+# )
+
+# target_include_directories(
+#   ObstacleRange PRIVATE include
+# )
+
+# target_link_libraries(ObstacleRange PUBLIC
+# gz-plugin${GZ_PLUGIN_VER}::gz-plugin${GZ_PLUGIN_VER}
+# gz-sensors${GZ_SENSORS_VER}::gz-sensors${GZ_SENSORS_VER}
+# gz-rendering${GZ_RENDERING_VER}::gz-rendering${GZ_RENDERING_VER})
+
+
+
+# set(lidar_sources src/ObstacleRange.cc)
+# gz_add_component(lidar
+#   SOURCES ${lidar_sources}
+#   DEPENDS_ON_COMPONENTS rendering
+#   GET_TARGET_NAME lidar_target
+# )
+# target_compile_definitions(${lidar_target} PUBLIC Lidar_EXPORTS)
+# target_link_libraries(${lidar_target}
+#   PUBLIC
+#     ${rendering_target}
+#   PRIVATE
+#     gz-msgs${GZ_MSGS_VER}::gz-msgs${GZ_MSGS_VER}
+#     gz-transport${GZ_TRANSPORT_VER}::gz-transport${GZ_TRANSPORT_VER}
+# )
 
 
 # Following 'install' directive ensures that the compiled libraries
 # of the 'BasicSystem' and 'FullSystem' targets will be copied
 # to the subfolder 'lib/ros_gz_example_gazebo' of the install directory.
 install(
-  TARGETS BasicSystem FullSystem
+  TARGETS 
+  BasicSystem 
+  FullSystem 
+  ros_gz_example_gazebo_msgs
+  # ObstacleRange
   DESTINATION lib/${PROJECT_NAME}
 )
 

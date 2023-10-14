@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package ros_gz_example_gazebo.msgs;
+
+message ObstacleRange
+{
+  repeated double range = 1;
+  repeated double bearing = 2;
+}

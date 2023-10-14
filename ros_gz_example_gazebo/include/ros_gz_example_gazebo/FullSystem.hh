@@ -22,6 +22,8 @@
 // All others will depend on what your plugin does.
 #include <gz/sim/EventManager.hh>
 #include <gz/sim/System.hh>
+#include <gz/sensors/Sensor.hh>
+#include <gz/transport/Node.hh>
 
 namespace ros_gz_example_gazebo
 {
@@ -78,6 +80,12 @@ namespace ros_gz_example_gazebo
     // This is called when simulation is reset/rewound to initial conditions.
     public: void Reset(const gz::sim::UpdateInfo &_info,
                 gz::sim::EntityComponentManager &_ecm) override;
+    
+    private: void RemoveSensorEntities(
+        const gz::sim::EntityComponentManager &_ecm);
+
+    private: std::unordered_map<gz::sim::Entity,
+        std::shared_ptr<gz::sensors::GpuLidarSensor>> entitySensorMap;
   };
 }
 #endif
