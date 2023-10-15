@@ -47,9 +47,9 @@
 GZ_ADD_PLUGIN(
     ros_gz_example_gazebo::FullSystem,
     gz::sim::System,
-    // ros_gz_example_gazebo::FullSystem::ISystemConfigure,
+    ros_gz_example_gazebo::FullSystem::ISystemConfigure,
     ros_gz_example_gazebo::FullSystem::ISystemPreUpdate,
-    // ros_gz_example_gazebo::FullSystem::ISystemUpdate,
+    ros_gz_example_gazebo::FullSystem::ISystemUpdate,
     ros_gz_example_gazebo::FullSystem::ISystemPostUpdate
     // ros_gz_example_gazebo::FullSystem::ISystemReset
 )
@@ -62,6 +62,7 @@ void FullSystem::Configure(const gz::sim::Entity &_entity,
                 gz::sim::EntityComponentManager &_ecm,
                 gz::sim::EventManager &_eventManager)
 {
+  pub = this->node.Advertise<gz::msgs::LaserScan>("/range_bearing");
   // gzerr << "ros_gz_example_gazebo::FullSystem::Configure on entity: " << _entity << std::endl;
 }
 
@@ -80,7 +81,6 @@ void FullSystem::PreUpdate(const gz::sim::UpdateInfo &_info,
         auto sensorScopedName = gz::sim::removeParentScope(
             gz::sim::scopedName(_entity, _ecm, "::", false), "::");
         sdf::Sensor data = _sensor->Data();
-        // gzerr << data << std::endl;
         data.SetName(sensorScopedName);
 
         if (data.Topic().empty())
@@ -97,21 +97,17 @@ void FullSystem::PreUpdate(const gz::sim::UpdateInfo &_info,
           return false;
         }
 
-        // Set sensor parent
         auto parentName = _ecm.Component<gz::sim::components::Name>(
             _parent->Data())->Data();
         sensor->SetParent(parentName);
 
-        // Set topic on Gazebo
         _ecm.CreateComponent(_entity,
             gz::sim::components::SensorTopic(sensor->Topic()));
 
-        // Keep track of this sensor
         this->entitySensorMap.insert(std::make_pair(_entity,
             std::move(sensor)));
 
         gzdbg << data.Topic() << std::endl;
-        // gzerr << "ros_gz_example_gazebo::FullSystem::PreUpdate" << std::endl;
         return true;
       });
 
@@ -122,9 +118,24 @@ void FullSystem::PreUpdate(const gz::sim::UpdateInfo &_info,
 void FullSystem::Update(const gz::sim::UpdateInfo &_info,
                         gz::sim::EntityComponentManager &_ecm)
 {
-  if (!_info.paused && _info.iterations % 1000 == 0)
+  if (!_info.paused )
   {
-    gzerr << "ros_gz_example_gazebo::FullSystem::Update" << std::endl;
+    // gzerr << "ros_gz_example_gazebo::FullSystem::Update" << std::endl;
+    for (auto &[entity, sensor] : this->entitySensorMap)
+    {
+      sensor->Update(_info.simTime);
+      ros_gz_example_gazebo::msgs::ObstacleRange msg;
+      msg.clear_range();
+      msg.clear_bearing();
+      for(int index = 0; index<=sensor->RangeCount(); index++){
+        msg.add_range(sensor->Range(index));
+        msg.add_bearing(index * sensor->AngleResolution());
+        
+        this->pub.Publish(msg);
+
+      }
+      gzdbg << sensor->AngleMin() << std::endl;
+    }
   }
 }
 
@@ -133,14 +144,16 @@ void FullSystem::PostUpdate(const gz::sim::UpdateInfo &_info,
 {
   if (!_info.paused)
   {
-    for (auto &[entity, sensor] : this->entitySensorMap)
-    {
-      ros_gz_example_gazebo::msgs::FoobarStamped msg;
+  //   for (auto &[entity, sensor] : this->entitySensorMap)
+  //   {
+  //     // ros_gz_example_gazebo::msgs::FoobarStamped msg;
+  //     // msg.clear_range();
 
-      gzerr << sensor->AngleMin() << std::endl;;
-    }
-  }
+  //     gzdbg << sensor->AngleMin() << std::endl;
+  //   }
   this->RemoveSensorEntities(_ecm);
+
+  }
 
   // gzerr << "ros_gz_example_gazebo::FullSystem::PostUpdate" << std::endl;
 }

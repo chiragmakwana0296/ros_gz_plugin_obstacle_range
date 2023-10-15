@@ -80,6 +80,9 @@ namespace ros_gz_example_gazebo
     // This is called when simulation is reset/rewound to initial conditions.
     public: void Reset(const gz::sim::UpdateInfo &_info,
                 gz::sim::EntityComponentManager &_ecm) override;
+
+    public: gz::transport::Node node;
+    public: gz::transport::Node::Publisher pub;    
     
     private: void RemoveSensorEntities(
         const gz::sim::EntityComponentManager &_ecm);
