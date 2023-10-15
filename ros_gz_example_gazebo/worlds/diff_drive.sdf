@@ -27,12 +27,8 @@
       name="gz::sim::systems::UserCommands">
     </plugin>
     <plugin
-      filename="BasicSystem"
-      name="ros_gz_example_gazebo::BasicSystem">
-    </plugin>
-    <plugin
-      filename="FullSystem"
-      name="ros_gz_example_gazebo::FullSystem">
+      filename="ObstacleRangeSensor"
+      name="ros_gz_example_gazebo::ObstacleRangeSensor">
     </plugin>
 
     <light name="sun" type="directional">

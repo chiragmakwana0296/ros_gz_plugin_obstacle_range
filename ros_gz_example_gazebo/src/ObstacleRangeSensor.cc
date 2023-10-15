@@ -40,38 +40,38 @@
 #include <gz/sim/Util.hh>
 // Don't forget to include the plugin's header.
 #include <ros_gz_example_gazebo/msgs/obstaclerange.pb.h>
-#include "ros_gz_example_gazebo/FullSystem.hh"
+#include "ros_gz_example_gazebo/ObstacleRangeSensor.hh"
 
 // This is required to register the plugin. Make sure the interfaces match
 // what's in the header.
 GZ_ADD_PLUGIN(
-    ros_gz_example_gazebo::FullSystem,
+    ros_gz_example_gazebo::ObstacleRangeSensor,
     gz::sim::System,
-    ros_gz_example_gazebo::FullSystem::ISystemConfigure,
-    ros_gz_example_gazebo::FullSystem::ISystemPreUpdate,
-    ros_gz_example_gazebo::FullSystem::ISystemUpdate,
-    ros_gz_example_gazebo::FullSystem::ISystemPostUpdate
-    // ros_gz_example_gazebo::FullSystem::ISystemReset
+    ros_gz_example_gazebo::ObstacleRangeSensor::ISystemConfigure,
+    ros_gz_example_gazebo::ObstacleRangeSensor::ISystemPreUpdate,
+    ros_gz_example_gazebo::ObstacleRangeSensor::ISystemUpdate,
+    ros_gz_example_gazebo::ObstacleRangeSensor::ISystemPostUpdate
+    // ros_gz_example_gazebo::ObstacleRangeSensor::ISystemReset
 )
 
 namespace ros_gz_example_gazebo 
 {
 
-void FullSystem::Configure(const gz::sim::Entity &_entity,
+void ObstacleRangeSensor::Configure(const gz::sim::Entity &_entity,
                 const std::shared_ptr<const sdf::Element> &_element,
                 gz::sim::EntityComponentManager &_ecm,
                 gz::sim::EventManager &_eventManager)
 {
   pub = this->node.Advertise<gz::msgs::LaserScan>("/range_bearing");
-  // gzerr << "ros_gz_example_gazebo::FullSystem::Configure on entity: " << _entity << std::endl;
+  // gzerr << "ros_gz_example_gazebo::ObstacleRangeSensor::Configure on entity: " << _entity << std::endl;
 }
 
-void FullSystem::PreUpdate(const gz::sim::UpdateInfo &_info,
+void ObstacleRangeSensor::PreUpdate(const gz::sim::UpdateInfo &_info,
                            gz::sim::EntityComponentManager &_ecm)
 {
   if (!_info.paused)
   {
-    // gzerr << "ros_gz_example_gazebo::FullSystem::PreUpdate" << std::endl;
+    // gzerr << "ros_gz_example_gazebo::ObstacleRangeSensor::PreUpdate" << std::endl;
     _ecm.EachNew<gz::sim::components::GpuLidar,
                gz::sim::components::ParentEntity>(
     [&](const gz::sim::Entity &_entity,
@@ -115,12 +115,12 @@ void FullSystem::PreUpdate(const gz::sim::UpdateInfo &_info,
 }
 
 
-void FullSystem::Update(const gz::sim::UpdateInfo &_info,
+void ObstacleRangeSensor::Update(const gz::sim::UpdateInfo &_info,
                         gz::sim::EntityComponentManager &_ecm)
 {
   if (!_info.paused )
   {
-    // gzerr << "ros_gz_example_gazebo::FullSystem::Update" << std::endl;
+    // gzerr << "ros_gz_example_gazebo::ObstacleRangeSensor::Update" << std::endl;
     for (auto &[entity, sensor] : this->entitySensorMap)
     {
       sensor->Update(_info.simTime);
@@ -139,7 +139,7 @@ void FullSystem::Update(const gz::sim::UpdateInfo &_info,
   }
 }
 
-void FullSystem::PostUpdate(const gz::sim::UpdateInfo &_info,
+void ObstacleRangeSensor::PostUpdate(const gz::sim::UpdateInfo &_info,
                             const gz::sim::EntityComponentManager &_ecm) 
 {
   if (!_info.paused)
@@ -155,11 +155,11 @@ void FullSystem::PostUpdate(const gz::sim::UpdateInfo &_info,
 
   }
 
-  // gzerr << "ros_gz_example_gazebo::FullSystem::PostUpdate" << std::endl;
+  // gzerr << "ros_gz_example_gazebo::ObstacleRangeSensor::PostUpdate" << std::endl;
 }
 
 
-void FullSystem::RemoveSensorEntities(
+void ObstacleRangeSensor::RemoveSensorEntities(
     const gz::sim::EntityComponentManager &_ecm)
 {
   _ecm.EachRemoved<gz::sim::components::GpuLidar>(
@@ -175,9 +175,9 @@ void FullSystem::RemoveSensorEntities(
       });
 }
 
-void FullSystem::Reset(const gz::sim::UpdateInfo &_info,
+void ObstacleRangeSensor::Reset(const gz::sim::UpdateInfo &_info,
                        gz::sim::EntityComponentManager &_ecm)
 {
-  gzerr << "ros_gz_example_gazebo::FullSystem::Reset" << std::endl;
+  gzerr << "ros_gz_example_gazebo::ObstacleRangeSensor::Reset" << std::endl;
 }
 }  // namespace ros_gz_example_gazeba

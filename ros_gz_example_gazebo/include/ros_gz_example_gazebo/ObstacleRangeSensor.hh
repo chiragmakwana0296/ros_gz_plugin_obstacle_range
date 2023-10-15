@@ -32,7 +32,7 @@ namespace ros_gz_example_gazebo
   // Here we use `ISystemPostUpdate`, which is used to get results after
   // physics runs. The opposite of that, `ISystemPreUpdate`, would be used by
   // plugins that want to send commands.
-  class FullSystem:
+  class ObstacleRangeSensor:
     public gz::sim::System,
     public gz::sim::ISystemConfigure,
     public gz::sim::ISystemPreUpdate,
